@@ -1,0 +1,8 @@
+backtrader
+riskfolio-lib
+pandas
+numpy
+matplotlib
+quantstats
+cvxpy
+yfinance
