@@ -1,6 +1,62 @@
 # Cross-Commodities Portfolio Research Framework
 
-This framework allows you to research and backtest dynamic, multi-sub-book commodity portfolios (oil, gas, grains, etc.) using mini futures. It supports sub-book modularity, dynamic asset selection, strategy backtesting, and risk/concentration analysis.
+<i>"A volatility-aware, subbook-balanced, mean-reverting spread trading system using dynamic z-score and rolling hedge ratios with risk monitoring, trade logging and capital tracking."</i>
+
+This framework is a mean-reversion pair trading strategy based on z-score divergence between pairs of related commodities. It allows you to research and backtest dynamic, multi-sub-book commodity portfolios (oil, gas, grains, etc.) using futures. It supports sub-book risk control and modularity, dynamic asset selection, strategy backtesting, and risk/concentration analysis.
+
+## Core Logic
+1. Spread Trading Logic
+    - Trades pairs of instruments (e.g., CL-NG, ZC-ZW) based on spread divergence from historical mean
+    - Uses z-score of log-spread as the signal driver
+2. Mean Reversion Hypothesis
+    - Assumes that the spread between two related assets oscillates around a statistical mean
+    - Entries occur at z-score ±Z_entry, exits at z-score approaching zero or Z_exit
+3. Rolling Beta Hedge
+    - Dynamically estimates hedge ratio (beta) using rolling linear regression
+    - Accounts for changing correlation strength over time
+
+4. Volatility Filter
+    - Skips trades if the spread volatility exceeds a maximum threshold
+    - Prevents entering trades in structurally unstable or noisy periods
+
+5. Risk Management by Subbooks
+    - Each subbook (e.g., oil, grains, gas) has its own starting capital
+    - Positions and risk are calculated relative to the subbook’s current capital
+
+6. Position Sizing Logic
+    - Position size is proportional to:
+        - 2% of current subbook capital
+        - Adjusted by spread volatility (volatility-aware sizing)
+    - Caps max position size for safety
+
+7. Stop-Loss and Holding Time Limits
+    - Hard stop-loss based on a multiple of spread volatility (default 3x).
+    - Maximum holding period constraint to force exit if the spread doesn’t revert within a reasonable time frame.
+
+8. Flexible Pair Selection
+    - Supports:
+        - Intra-subbook pairs (e.g., grains-grains).
+        - Cross-subbook pairs (e.g., oil-grains).
+        - Or all pairs.
+    - Excludes pairs dynamically via config (excluded_pairs list).
+
+9. Multi-Timeframe Support
+    - Works with daily or 5-minute data (or other intervals) via data_interval config.
+
+10. Full Backtest Transparency
+    - Logs:
+        - Spread history
+        - Z-score evolution
+        - Entry/exit points
+        - PnL per pair and subbook
+    - Each run produces a timestamped result folder with complete reports.
+
+<br>
+
+<b>Example:  </b><br>
+<i>If the spread between CL and QM spikes (z > 1.5):
+The strategy shorts CL and longs QM.
+When spread reverts (z ≈ 0), it exits and logs the trade.</i>
 
 ## Futures Symbols:  
 ### --- Oil Sub-Book ---  
