@@ -82,10 +82,22 @@ pip install -r requirements.txt
 
 Edit config/config.json.
 
+| Key                  | Description                                    |
+| -------------------- | ---------------------------------------------- |
+| `start_date`         | Start date for backtest (e.g., `"2023-01-01"`) |
+| `data_interval`      | Data interval (`"1d"`, `"1h"`, `"15m"`)        |
+| `capital`            | Total capital in USD                           |
+| `slippage_pct`       | Slippage per trade (e.g., `0.001` = 0.1%)      |
+| `capital_allocation` | Subbook budgets + contracts                    |
+| `pair_mode`          | `"intra"`, `"cross"`, or `"all"`               |
+| `excluded_pairs`     | List of pairs to skip (optional)               |
+
+
 3️⃣ Download data:
 ```bash
 python utils/download_all_contracts.py
 ```
+---> Saves data to data/raw/
 
 4️⃣ Run the backtest:
 ```bash
@@ -97,16 +109,26 @@ python main.py
 Open the notebook:
 ```bash
 jupyter lab notebooks/report.ipynb
+python utils/plot_spread.py
+```
+7️⃣ Optional Tools  
+---> Optimize parameters for spreads:
+```bash
+python utils/optimize_spread_parameters.py
+```
+---> Rank spread candidates by correlation + cointegration:
+
+```bash
+python utils/rank_spread_candidates.py
+```
+---> Compare subbook risk:
+```bash
+python risk/compare_subbook_risk.py
 ```
 
-📊 Outputs
-
-✔️ Spread z-scores with trades
-
-✔️ Risk analysis by subbook
-
-✔️ Pairwise PnL breakdown
-
-✔️ Correlation heatmaps
-
-✔️ Cointegration rankings
+8️⃣ Outputs  
+✔️ Spread z-scores with trades  
+✔️ Risk analysis by subbook  
+✔️ Pairwise PnL breakdown  
+✔️ Correlation heatmaps  
+✔️ Cointegration rankings  
