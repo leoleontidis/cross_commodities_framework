@@ -38,7 +38,7 @@ def get_data(symbol):
         return load_csv(symbol, interval=data_interval)
     except FileNotFoundError:
         yf_symbol = symbol_map.get(symbol)
-        print(f"Downloading {symbol} ({yf_symbol}) with interval '{data_interval}'...")
+        print(f"[MAIN] - Downloading {symbol} ({yf_symbol}) with interval '{data_interval}'...")
         df = download_data(yf_symbol, start=start_date, interval=data_interval)
         save_to_csv(df, symbol, interval=data_interval)
         return df
@@ -51,7 +51,7 @@ def find_subbook(symbol):
     for book, info in capital_allocation.items():
         if symbol in info["contracts"]:
             return book
-    print(f"⚠️ Symbol {symbol} not found in any subbook.")
+    print(f"[MAIN] - Symbol {symbol} not found in any subbook.")
     return None
 
 def run_portfolio():
@@ -67,9 +67,9 @@ def run_portfolio():
     cerebro = bt.Cerebro()
     cerebro.broker.set_cash(initial_capital)
 
-    print("\n🧾 Initial Capital Allocation per Subbook:")
+    print("\n[MAIN] - Initial Capital Allocation per Subbook:")
     for book, info in capital_allocation.items():
-        print(f"  📘 {book.capitalize()}: {info['budget']:,.2f}")
+        print(f"  [MAIN] - {book.capitalize()}: {info['budget']:,.2f}")
 
     symbol_data = {}
     for symbol in set(symbols):
@@ -89,11 +89,11 @@ def run_portfolio():
         reverse_pair = f"{s2} - {s1}"
 
         if pair_name in excluded_pairs or reverse_pair in excluded_pairs:
-            print(f"🚫 Skipping excluded pair: {pair_name}")
+            print(f"[MAIN] - Skipping excluded pair: {pair_name}")
             continue
 
         if book1 is None or book2 is None:
-            print(f"⛔ Skipping pair {s1}-{s2} | book1={book1}, book2={book2}")
+            print(f"[MAIN] - Skipping pair {s1}-{s2} | book1={book1}, book2={book2}")
             continue
 
         if pair_mode == "intra" and book1 != book2:
@@ -101,7 +101,7 @@ def run_portfolio():
         elif pair_mode == "cross" and book1 == book2:
             continue
         elif pair_mode not in ["intra", "cross", "all"]:
-            print(f"⚠️ Invalid pair_mode '{pair_mode}' in config. Skipping pair {s1}-{s2}.")
+            print(f"[MAIN] - Invalid pair_mode '{pair_mode}' in config. Skipping pair {s1}-{s2}.")
             continue
 
         try:
@@ -134,7 +134,7 @@ def run_portfolio():
 
         except Exception as e:
             with open(log_path, "a") as f:
-                f.write(f"Failed pair {s1}-{s2}: {str(e)}\n")
+                f.write(f"[MAIN] - Failed pair {s1}-{s2}: {str(e)}\n")
 
     cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name="sharpe")
     cerebro.addanalyzer(bt.analyzers.DrawDown, _name="drawdown")
@@ -154,15 +154,15 @@ def run_portfolio():
             if book:
                 subbook_pnls[book] += row["pnl"]
 
-        print("\n💰 Final Subbook Results:")
+        print("\n[MAIN] - Final Subbook Results:")
         final_total = 0.0
         for book, pnl in subbook_pnls.items():
             start_cap = capital_allocation[book]["budget"]
             final_cap = start_cap + pnl
             final_total += final_cap
-            print(f"  📘 {book.capitalize()}: Start = {start_cap:,.2f}, PnL = {pnl:,.2f}, Final = {final_cap:,.2f}")
+            print(f"  [MAIN] - {book.capitalize()}: Start = {start_cap:,.2f}, PnL = {pnl:,.2f}, Final = {final_cap:,.2f}")
 
-        print(f"\n📦 Portfolio Final Value: {final_total:,.2f}")
+        print(f"\n[MAIN] - Portfolio Final Value: {final_total:,.2f}")
 
         if not df_trades.empty and "pnl" in df_trades.columns:
             sharpe = strat.analyzers.sharpe.get_analysis().get("sharperatio", None)
@@ -188,7 +188,7 @@ def run_portfolio():
                 "loss_rate": loss_rate
             }])
             summary_df.to_csv("data/processed/portfolio_summary.csv", index=False)
-            print("\n📊 Portfolio Summary saved to data/processed/portfolio_summary.csv")
+            print("\n[MAIN] - Portfolio Summary saved to data/processed/portfolio_summary.csv")
 
     price_data = pd.DataFrame({s: symbol_data[s]["Close"] for s in symbol_data}).dropna()
     returns = price_data.pct_change().dropna()
@@ -202,8 +202,8 @@ def run_portfolio():
     risk["Diversification Ratio"] = diversification_ratio(price_data, weights)
     risk.to_csv("data/processed/portfolio_risk_metrics.csv")
 
-    print("\n✅ Backtest completed and metrics saved.")
-    print('Final Portfolio Value: {:,.2f}'.format(cerebro.broker.getvalue()))
+    print("\n[MAIN] - Backtest completed and metrics saved.")
+    print('[MAIN] -Final Portfolio Value: {:,.2f}'.format(cerebro.broker.getvalue()))
 
 if __name__ == "__main__":
     run_portfolio()

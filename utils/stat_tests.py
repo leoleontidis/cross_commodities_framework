@@ -10,5 +10,5 @@ def is_cointegrated(series1, series2, beta, max_pvalue=0.05, log_spread=True, ve
     result = adfuller(spread.dropna())
     pvalue = result[1]
     if verbose:
-        print(f"ADF p-value: {pvalue:.5f} for pair")
+        print(f"[STATS] - ADF p-value: {pvalue:.5f} for pair")
     return pvalue < max_pvalue

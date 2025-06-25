@@ -17,15 +17,13 @@ def plot_spread_zscore_with_trades(pair_id: str, z_entry=1.0, z_exit=0.25):
     x_path = os.path.join(base_path, f"exits_{pair_id}.csv")
 
     if not all(map(os.path.exists, [z_path, e_path, x_path])):
-        print(f"⛔ Missing data files for {pair_id}.")
+        print(f"[PLOT] - Missing data files for {pair_id}.")
         return
 
-    # Load data
     df = pd.read_csv(z_path, parse_dates=["datetime"])
     entries = pd.read_csv(e_path, parse_dates=["entry"])["entry"]
     exits = pd.read_csv(x_path, parse_dates=["exit"])["exit"]
 
-    # Plot
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 8), sharex=True)
 
     # ax1: z-score with entry/exit markers

@@ -23,7 +23,7 @@ with open(symbol_map_path) as f:
     symbol_map = json.load(f)
 
 capital_allocation = config["capital_allocation"]
-symbols_by_subbook = {book: info["contracts"] for book, info in capital_allocation.items()}
+symbols_by_subbook = {book: OPTIMIZER["contracts"] for book, OPTIMIZER in capital_allocation.items()}
 all_symbols = sum([v for v in symbols_by_subbook.values()], [])
 start_date = config.get("start_date", "2023-01-01")
 initial_capital = config.get("capital", 10_000_000)
@@ -57,10 +57,10 @@ for a, b in combinations(set(all_symbols), 2):
     tag = book1 if book1 == book2 else "cross"
     pairs.append((a, b, tag))
 
-print(f"\n🔍 Total Pairs to Optimize: {len(pairs)}")
+print(f"\n[OPTIMIZER] - Total Pairs to Optimize: {len(pairs)}")
 
 for s1, s2, book in pairs:
-    print(f"\n🔍 Optimizing {s1}-{s2} ({book})")
+    print(f"\n[OPTIMIZER] - Optimizing {s1}-{s2} ({book})")
     subbook_budget = capital_allocation.get(book, {}).get("budget", initial_capital)
     best_result = None
 
@@ -71,7 +71,7 @@ for s1, s2, book in pairs:
         df1 = df1.loc[common_idx]
         df2 = df2.loc[common_idx]
         if len(common_idx) < 50:
-            print(f"⚠️ Not enough data overlap for {s1}-{s2}")
+            print(f"[OPTIMIZER] - Not enough data overlap for {s1}-{s2}")
             continue
 
         beta = estimate_beta(df1["Close"], df2["Close"])
@@ -122,9 +122,8 @@ for s1, s2, book in pairs:
             print(result)
             results.append(result)
 
-
     except Exception as e:
-        print(f"❌ Skipping {s1}-{s2}: {e}")
+        print(f"[OPTIMIZER] - Skipping {s1}-{s2}: {e}")
         continue
 
 
@@ -132,4 +131,4 @@ for s1, s2, book in pairs:
 os.makedirs("data/processed", exist_ok=True)
 df = pd.DataFrame(results)
 df.to_csv("data/processed/best_pair_parameters.csv", index=False)
-print("\n✅ Optimization completed and saved to data/processed/best_pair_parameters.csv")
+print("\n[OPTIMIZER] - Optimization completed and saved to data/processed/best_pair_parameters.csv")

@@ -11,13 +11,12 @@ def compute_risk_metrics(price_data: pd.DataFrame, weights: pd.Series, alpha=0.0
     port = Portfolio(returns=returns)
     port.assets_stats(method_mu='hist', method_cov='ledoit')
 
-    mu = port.mu.iloc[0]  # Get first row as Series
+    mu = port.mu.iloc[0]
     cov = port.cov
 
-    # Align symbols
     common_assets = list(set(weights.index) & set(mu.index) & set(cov.index))
     if len(common_assets) == 0:
-        raise ValueError("No common assets between weights, mu, and cov.")
+        raise ValueError("[RISKMETRICS] - No common assets between weights, mu, and cov.")
 
     weights = weights[common_assets]
     mu = mu[common_assets]
@@ -26,7 +25,7 @@ def compute_risk_metrics(price_data: pd.DataFrame, weights: pd.Series, alpha=0.0
     expected_return = weights.dot(mu)
     volatility = (weights.T @ cov @ weights) ** 0.5
 
-    # ✅ Portfolio-level CVaR (manual)
+    # Portfolio-level CVaR
     portfolio_returns = returns[common_assets] @ weights
     cvar = portfolio_returns[portfolio_returns <= portfolio_returns.quantile(alpha)].mean()
 
@@ -40,12 +39,12 @@ def compute_risk_metrics(price_data: pd.DataFrame, weights: pd.Series, alpha=0.0
 
 def risk_contributions(price_data: pd.DataFrame, weights: pd.Series):
     returns = price_data.pct_change().dropna()
-    weights = weights[price_data.columns]  # Ensure alignment
+    weights = weights[price_data.columns]
 
     cov = returns.cov()
     portfolio_vol = (weights.T @ cov @ weights) ** 0.5
 
-    # Marginal contribution: ∂σ/∂w = (Σw) / σ
+    # Marginal contribution
     marginal_contrib = cov @ weights
     risk_contrib = weights * marginal_contrib
     pct_risk_contrib = (risk_contrib / portfolio_vol**2) * 100
@@ -55,4 +54,3 @@ def risk_contributions(price_data: pd.DataFrame, weights: pd.Series):
         "Abs Contribution": risk_contrib,
         "Percent Contribution": pct_risk_contrib
     }).T
-

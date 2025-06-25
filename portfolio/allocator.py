@@ -32,8 +32,6 @@ class CapitalAllocator:
 
     def get_weights(self):
         return self.weights
-    
-    # Add these to portfolio/allocator.py (in addition to previous ones)
 
     def risk_parity(self):
         port = pf.Portfolio(returns=self.returns)
@@ -46,4 +44,3 @@ class CapitalAllocator:
         port.assets_stats(method_mu='hist', method_cov='ledoit')
         self.weights = port.optimization(model='Classic', obj='MinRisk', rm='CVaR', hist=True, alpha=alpha)
         return self.weights
-

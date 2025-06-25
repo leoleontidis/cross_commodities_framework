@@ -48,7 +48,7 @@ def compute_metrics(symbols, data_dir="data/raw"):
             })
 
         except Exception as e:
-            print(f"❌ Failed {sym1}-{sym2}: {e}")
+            print(f"[RANKER] - Failed {sym1}-{sym2}: {e}")
 
     return pd.DataFrame(results)
 
@@ -72,14 +72,14 @@ def plot_heatmap(df, symbols, output="data/processed/correlation_heatmap.png"):
     plt.tight_layout()
     os.makedirs(os.path.dirname(output), exist_ok=True)
     plt.savefig(output)
-    print(f"📊 Correlation heatmap saved to {output}")
+    print(f"[RANKER] - Correlation heatmap saved to {output}")
 
 if __name__ == "__main__":
     symbols = load_contract_symbols()
     df = compute_metrics(symbols)
     ranked = rank_pairs(df, top_n=10)
     ranked.to_csv("data/processed/top_spread_candidates.csv", index=False)
-    print("\n✅ Top spread candidates saved to data/processed/top_spread_candidates.csv")
+    print("\n[RANKER] - Top spread candidates saved to data/processed/top_spread_candidates.csv")
     print(ranked[["pair", "correlation", "cointegration_pval", "combined_score"]])
 
     plot_heatmap(df, symbols)

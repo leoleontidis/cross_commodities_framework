@@ -21,6 +21,6 @@ class TradeLogger:
         df = self.to_dataframe()
         if not df.empty:
             df.to_csv(path, index=False)
-            print(f"✅ Trade log saved to {path}")
+            print(f"[TRADELOG] - Trade log saved to {path}")
         else:
-            print("⚠️ No trades to save.")
+            print("[TRADELOG] - No trades to save.")

@@ -14,15 +14,15 @@ def download_all(start_date="2023-01-01", interval="1d", output_dir="data/raw"):
 
     for symbol, yf_symbol in contracts.items():
         try:
-            print(f"⬇️ Downloading {symbol} ({yf_symbol})...")
+            print(f"[DOWNLOADER] - Downloading {symbol} ({yf_symbol})...")
             df = download_data(yf_symbol, start=start_date, interval=interval)
             if not df.empty:
                 save_to_csv(df, symbol)
-                print(f"✅ Saved {symbol} to {output_dir}/{symbol}.csv")
+                print(f"[DOWNLOADER] - Saved {symbol} to {output_dir}/{symbol}.csv")
             else:
-                print(f"⚠️ No data for {symbol}")
+                print(f"[DOWNLOADER] - No data for {symbol}")
         except Exception as e:
-            print(f"❌ Failed {symbol} ({yf_symbol}): {e}")
+            print(f"[DOWNLOADER] - Failed {symbol} ({yf_symbol}): {e}")
 
 if __name__ == "__main__":
     download_all()

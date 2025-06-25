@@ -44,7 +44,7 @@ class SpreadPairStrategy(bt.Strategy):
     def start(self):
         self.asset1 = next(d for d in self.datas if d._name == self.p.asset1_name)
         self.asset2 = next(d for d in self.datas if d._name == self.p.asset2_name)
-        self.log(f"✅ Initialized spread: {self.p.asset1_name} - {self.p.asset2_name} | β₀ = {self.p.beta_static:.3f}")
+        self.log(f"[STRATEGY] - Initialized spread: {self.p.asset1_name} - {self.p.asset2_name} | β₀ = {self.p.beta_static:.3f}")
         self.log(f"START | subbook={self.p.subbook_name} | capital={self.subbook_value:.2f}")
 
     def compute_beta(self):
@@ -82,7 +82,7 @@ class SpreadPairStrategy(bt.Strategy):
         self.log(f"[SPREAD] {spread:.4f} | Vol={spread_vol:.4f} | Z={zscore:.2f}")
 
         if self.p.volatility_filter and spread_vol > self.p.max_volatility:
-            self.log(f"⚠️ Volatility too high ({spread_vol:.2f}), skipping trade.")
+            self.log(f"[STRATEGY] - Volatility too high ({spread_vol:.2f}), skipping trade.")
             return
 
         pos1 = self.getposition(self.asset1).size
@@ -95,7 +95,7 @@ class SpreadPairStrategy(bt.Strategy):
                 self.close(self.asset2)
                 self._close_trade(spread)
                 self.exit_timestamps.append(self.datas[0].datetime.datetime(0))
-                self.log(f"⏰ Max holding period reached ({holding_period} bars) — exiting trade.")
+                self.log(f"[STRATEGY] - Max holding period reached ({holding_period} bars) — exiting trade.")
                 self.active_trade = None
                 return
 
@@ -109,7 +109,7 @@ class SpreadPairStrategy(bt.Strategy):
                 self.close(self.asset2)
                 self._close_trade(spread)
                 self.exit_timestamps.append(self.datas[0].datetime.datetime(0))
-                self.log(f"🛑 Hard stop-loss hit | Spread moved {spread_move:.2f} against position")
+                self.log(f"[STRATEGY] - Hard stop-loss hit | Spread moved {spread_move:.2f} against position")
                 self.active_trade = None
                 return
 
@@ -122,21 +122,21 @@ class SpreadPairStrategy(bt.Strategy):
                 self.buy(self.asset2, size=size2)
                 self.active_trade = self._create_trade_dict('Short Spread', spread, price1, price2, size1, size2)
                 self.entry_timestamps.append(self.datas[0].datetime.datetime(0))
-                self.log(f"📉 Short Spread entered at {spread:.2f} (z={zscore:.2f})")
+                self.log(f"[STRATEGY] - Short Spread entered at {spread:.2f} (z={zscore:.2f})")
 
             elif zscore < -self.p.z_entry:
                 self.buy(self.asset1, size=size1)
                 self.sell(self.asset2, size=size2)
                 self.active_trade = self._create_trade_dict('Long Spread', spread, price1, price2, size1, size2)
                 self.entry_timestamps.append(self.datas[0].datetime.datetime(0))
-                self.log(f"📈 Long Spread entered at {spread:.2f} (z={zscore:.2f})")
+                self.log(f"[STRATEGY] - Long Spread entered at {spread:.2f} (z={zscore:.2f})")
 
         elif self.active_trade and abs(zscore) <= self.p.z_exit:
             self.close(self.asset1)
             self.close(self.asset2)
             self._close_trade(spread)
             self.exit_timestamps.append(self.datas[0].datetime.datetime(0))
-            self.log(f"🎯 Target reached | Spread reverted to {spread:.2f}")
+            self.log(f"[STRATEGY] - Target reached | Spread reverted to {spread:.2f}")
             self.active_trade = None
 
     def calc_hedged_position_size(self, beta):
@@ -181,7 +181,7 @@ class SpreadPairStrategy(bt.Strategy):
                         (1 if trade['side'] == 'Long Spread' else -1)
         })
         self.trades.append(trade)
-        self.log(f"✅ Trade closed | {trade['side']} | Spread: {exit_spread:.2f} | PnL: {pnl:.2f} | Capital: {self.subbook_value:.2f}")
+        self.log(f"[STRATEGY] - Trade closed | {trade['side']} | Spread: {exit_spread:.2f} | PnL: {pnl:.2f} | Capital: {self.subbook_value:.2f}")
 
     def stop(self):
         pos1 = self.getposition(self.asset1)
@@ -201,7 +201,7 @@ class SpreadPairStrategy(bt.Strategy):
                             if self.p.use_log_spread else self.asset1.close[0] - beta * self.asset2.close[0])
             self._close_trade(final_spread)
             self.exit_timestamps.append(self.datas[0].datetime.datetime(0))
-            self.log(f"⚠️ Forced exit at {final_spread:.2f}")
+            self.log(f"[STRATEGY] - Forced exit at {final_spread:.2f}")
             self.active_trade = None
 
         if self.trades:
@@ -224,8 +224,8 @@ class SpreadPairStrategy(bt.Strategy):
         df_row.to_csv(summary_path, mode='a' if os.path.exists(summary_path) else 'w',
                     header=not os.path.exists(summary_path), index=False)
 
-        self.log(f"🧾 Pair PnL | Realized: {self.realized_pnl:.2f} | Unrealized: {self.unrealized_pnl:.2f}")
+        self.log(f"Pair PnL | Realized: {self.realized_pnl:.2f} | Unrealized: {self.unrealized_pnl:.2f}")
 
     def log(self, txt):
         dt = self.datas[0].datetime.date(0)
-        print(f"{dt.isoformat()} | {self.p.asset1_name}-{self.p.asset2_name} | {txt}")
+        print(f"[STRATEGY] - {dt.isoformat()} | {self.p.asset1_name}-{self.p.asset2_name} | {txt}")
