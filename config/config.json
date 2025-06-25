@@ -1,0 +1,22 @@
+{
+    "start_date": "2023-01-01",
+    "data_interval": "15m",
+    "capital": 1000000,
+    "slippage_pct": 0.001,
+    "capital_allocation": {
+        "oil": {
+            "budget": 400000,
+            "contracts": ["CL", "BZ", "HO"]
+        },
+        "gas": {
+            "budget": 300000,
+            "contracts": ["NG", "HH", "QG"]
+        },
+        "grains": {
+            "budget": 300000,
+            "contracts": ["ZC", "ZW", "ZS"]
+        }
+    },
+    "excluded_pairs": ["NG - BZ", "NG - ZW", "NG - HO"],
+    "pair_mode": "all"
+}
