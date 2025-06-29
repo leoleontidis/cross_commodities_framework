@@ -10,6 +10,7 @@ from strategies.spread_pair_strategy import SpreadPairStrategy
 from risk.risk_metrics import compute_risk_metrics
 from risk.concentration import herfindahl_index, diversification_ratio
 import statsmodels.api as sm
+from portfolio.allocator import CapitalAllocator
 
 # Load config
 with open("config/config.json") as f:
@@ -193,7 +194,6 @@ def run_portfolio():
     price_data = pd.DataFrame({s: symbol_data[s]["Close"] for s in symbol_data}).dropna()
     returns = price_data.pct_change().dropna()
 
-    from portfolio.allocator import CapitalAllocator
     allocator = CapitalAllocator(price_data)
     weights = allocator.equal_weight()
 

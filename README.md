@@ -128,6 +128,14 @@ When spread reverts (z ≈ 0), it exits and logs the trade.</i>
 
 ## Quickstart
 
+**Create a virtual environment**
+```bash
+python -m venv .venv
+.venv\Scripts\activate        # On Windows
+# or
+source .venv/bin/activate     # On macOS/Linux
+```
+
 1️⃣ **Install dependencies:**
 
 ```bash
